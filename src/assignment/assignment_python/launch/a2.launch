@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="assignment_python" name="assignment2" type="aeb.py"/>
+</launch>

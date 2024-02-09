@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="assignment_python" name="WallFollow_node" type="wall_fol.py"/>
+</launch>

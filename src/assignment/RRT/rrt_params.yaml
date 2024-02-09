@@ -1,0 +1,13 @@
+# Topics that RRT listens to
+# TODO: add your own
+# TODO: change this to the pose topic published particle filter
+pose_topic: "/move_base_simple/goal"
+scan_topic: "/scan"
+GRID_RESOLUTION: 0.1
+GRID_WIDTH: 27
+GRID_HEIGHT: 27
+STEER_LIMIT: 180
+ITERATIONS: 3000
+ORIGINx: -15
+ORIGINy: -8 #sidewise
+frame: "/map"

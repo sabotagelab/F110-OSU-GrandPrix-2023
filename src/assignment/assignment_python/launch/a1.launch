@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="assignment_python" name="assignment1" type="subpub.py"/>
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find assignment_python)/launch/initial.rviz" output="screen"/>
+	<node pkg="rosbag" type="record" name="record" args="-a --output-name=bag_test.bag"/>
+</launch>
