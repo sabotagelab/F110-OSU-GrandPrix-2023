@@ -1,9 +1,11 @@
-import rospy
-import tf2_ros
 from nav_msgs.msg import Odometry
 import geometry_msgs
+import rospy
+import tf2_ros
+
 
 def handle_odom(tf):
+    """publishes the transform and odometry message to the /odom topic."""
     br = tf2_ros.StaticTransformBroadcaster()
     odom_trans = geometry_msgs.msg.TransformStamped()
     odom_trans.header.stamp = rospy.Time.now()
@@ -28,9 +30,10 @@ def handle_odom(tf):
     odom.pose.pose.orientation.y = tf.transform.rotation.y
     odom.pose.pose.orientation.z = tf.transform.rotation.z
     odom.pose.pose.orientation.w = tf.transform.rotation.w
-    odom.twist.twist.linear.x = 0.1 # Example linear velocity
-    odom.twist.twist.angular.z = 0.05 # Example angular velocity
+    odom.twist.twist.linear.x = 0.1  # Example linear velocity
+    odom.twist.twist.angular.z = 0.05  # Example angular velocity
     pub.publish(odom)
+
 
 if __name__ == '__main__':
     rospy.init_node('tf_to_odom')
