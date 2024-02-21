@@ -10,6 +10,7 @@ lp = lg.LaserProjection()
 
 pc_pub = rospy.Publisher("converted_pc", PointCloud2, queue_size=1)
 
+
 def scan_cb(msg):
     # convert the message of type LaserScan to a PointCloud2
     pc2_msg = lp.projectLaser(msg)
@@ -17,10 +18,10 @@ def scan_cb(msg):
     # now we can do something with the PointCloud2 for example:
     # publish it
     pc_pub.publish(pc2_msg)
-    
+
     # convert it to a generator of the individual points
     point_generator = pc2.read_points(pc2_msg)
-    
+
     points = []
     i = 0
     j = 0
@@ -29,7 +30,7 @@ def scan_cb(msg):
         i += 1
         if i > 240 and i < 840:
             points.append((point[0], point[1]))
-        #i +=1
+        # i +=1
     print(len(points))
 
 

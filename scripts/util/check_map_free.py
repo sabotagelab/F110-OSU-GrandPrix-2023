@@ -1,37 +1,33 @@
-import csv
-from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-import rospy
 import rosbag
 
 
 def check_map_free(recorded_scans, current_pos, current_scan):
     # FIND CLOSEST POSITION
-    positions = recorded_scans[:,0:2]
+    positions = recorded_scans[:, 0:2]
     diff = np.linalg.norm(positions - current_pos, axis=1)
     min_diff = np.argmin(diff)
     closest_position = positions[min_diff]
-    #print(closest_position)
+    # print(closest_position)
 
     # GET SCAN OF CLOSEST POSITION
     ref_scan = recorded_scans[min_diff, 2:]
-    
+
     # TODO: DO SCAN MATCHING TO ALIGN RECORDED SCAN AND CURRENT SCAN
 
     # GET DIFFERENCE BETWEEN (ALIGNED) SCAN AND RECORDED SCAN
     scan_diff = ref_scan - current_scan
     print(scan_diff)
-    free = all(scan_diff > -1) 
+    free = all(scan_diff > -1)
 
     return free, ref_scan, scan_diff
-
 
 
 ################## FOR TESTING
 
 ###### LOAD THE BAG FILE FROM RECORDING WITH OBSTACLES
-bagfile = 'bags/dynamic_obst.bag'
+bagfile = "bags/dynamic_obst.bag"
 bag = rosbag.Bag(bagfile)
 
 
@@ -39,7 +35,7 @@ bag = rosbag.Bag(bagfile)
 positions_raw = {}
 
 timestamps = []
-for topic, msg, t in bag.read_messages(topics=['/pf/pose/odom']):
+for topic, msg, t in bag.read_messages(topics=["/pf/pose/odom"]):
     tsec = t.to_sec()
     positions_raw[tsec] = [msg.pose.pose.position.x, msg.pose.pose.position.y]
     timestamps.append(tsec)
@@ -51,7 +47,7 @@ min_timestamp = min(timestamps)
 ######## RESET POSITIONS KEYS TO FORMATTED TIMESTAMPS
 positions = {}
 for t, p in positions_raw.items():
-    positions[t-min_timestamp] = p
+    positions[t - min_timestamp] = p
 
 ######## SAVE THE SCANS AT THE TIMESTAMPS
 position_timestamps = np.array(list(positions.keys()))
@@ -60,7 +56,7 @@ scan_diff = {}
 
 count_scans = 0
 redundant_scans = 0
-for topic, msg, t in bag.read_messages(topics=['/scan']):
+for topic, msg, t in bag.read_messages(topics=["/scan"]):
     tsec = t.to_sec() - min_timestamp
     diff = np.abs(position_timestamps - tsec)
     min_diff = np.min(diff)
@@ -92,14 +88,14 @@ test_position = positions[test_scan_ts]
 test_scan = positions_to_scans[(test_position[0], test_position[1])]
 
 print(test_position)
-plt.scatter(list(range(0, len(test_scan))), test_scan, color='blue')
+plt.scatter(list(range(0, len(test_scan))), test_scan, color="blue")
 
-recorded_scans = np.loadtxt('pos_to_scan_map.csv', delimiter=',')
+recorded_scans = np.loadtxt("pos_to_scan_map.csv", delimiter=",")
 free, ref_scan, scan_diff = check_map_free(recorded_scans, test_position, test_scan)
 
-plt.scatter(list(range(0, len(ref_scan))), ref_scan, color='red')
+plt.scatter(list(range(0, len(ref_scan))), ref_scan, color="red")
 
-plt.scatter(list(range(0, len(scan_diff))), scan_diff, color='green', alpha=0.5)
+plt.scatter(list(range(0, len(scan_diff))), scan_diff, color="green", alpha=0.5)
 plt.show()
 
-print('Is map free? {}'.format(free))
+print("Is map free? {}".format(free))

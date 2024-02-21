@@ -5,12 +5,15 @@ from argparse import Namespace
 import math
 from numba import njit
 import matplotlib.pyplot as plt
+
 """ 
 Planner Helpers
 """
+
+
 @njit(fastmath=False, cache=True)
 def nearest_point_on_trajectory(point, trajectory):
-    '''
+    """
     Return the nearest point along the given piecewise linear trajectory.
 
     Same as nearest_point_on_line_segment, but vectorized. This method is quite fast, time constraints should
@@ -21,26 +24,32 @@ def nearest_point_on_trajectory(point, trajectory):
     point: size 2 numpy array
     trajectory: Nx2 matrix of (x,y) trajectory waypoints
         - these must be unique. If they are not unique, a divide by 0 error will destroy the world
-    '''
-    diffs = trajectory[1:,:] - trajectory[:-1,:]
-    l2s   = diffs[:,0]**2 + diffs[:,1]**2
+    """
+    diffs = trajectory[1:, :] - trajectory[:-1, :]
+    l2s = diffs[:, 0] ** 2 + diffs[:, 1] ** 2
     # this is equivalent to the elementwise dot product
     # dots = np.sum((point - trajectory[:-1,:]) * diffs[:,:], axis=1)
-    dots = np.empty((trajectory.shape[0]-1, ))
+    dots = np.empty((trajectory.shape[0] - 1,))
     for i in range(dots.shape[0]):
         dots[i] = np.dot((point - trajectory[i, :]), diffs[i, :])
     t = dots / l2s
-    t[t<0.0] = 0.0
-    t[t>1.0] = 1.0
+    t[t < 0.0] = 0.0
+    t[t > 1.0] = 1.0
     # t = np.clip(dots / l2s, 0.0, 1.0)
-    projections = trajectory[:-1,:] + (t*diffs.T).T
+    projections = trajectory[:-1, :] + (t * diffs.T).T
     # dists = np.linalg.norm(point - projections, axis=1)
     dists = np.empty((projections.shape[0],))
     for i in range(dists.shape[0]):
         temp = point - projections[i]
-        dists[i] = np.sqrt(np.sum(temp*temp))
+        dists[i] = np.sqrt(np.sum(temp * temp))
     min_dist_segment = np.argmin(dists)
-    return projections[min_dist_segment], dists[min_dist_segment], t[min_dist_segment], min_dist_segment
+    return (
+        projections[min_dist_segment],
+        dists[min_dist_segment],
+        t[min_dist_segment],
+        min_dist_segment,
+    )
+
 
 @njit(fastmath=False, cache=True)
 def pi_2_pi(angle):
@@ -50,6 +59,7 @@ def pi_2_pi(angle):
         return angle + 2.0 * math.pi
 
     return angle
+
 
 class StanleyPlanner:
     """
@@ -61,11 +71,11 @@ class StanleyPlanner:
     """
 
     def __init__(self, conf, wb):
-        self.wheelbase = wb                 # Wheelbase of the vehicle
-        self.conf = conf                    # Current configuration for the gym based on the maps
-        self.load_waypoints(conf)           # Waypoints of the raceline
-        self.max_reacquire = 20.
-        self.vehicle_control_e_f = 0        # Control error
+        self.wheelbase = wb  # Wheelbase of the vehicle
+        self.conf = conf  # Current configuration for the gym based on the maps
+        self.load_waypoints(conf)  # Waypoints of the raceline
+        self.max_reacquire = 20.0
+        self.vehicle_control_e_f = 0  # Control error
         self.vehicle_control_error3 = 0
 
     def load_waypoints(self, conf):
@@ -73,7 +83,9 @@ class StanleyPlanner:
         Loading the x and y waypoints in the "..._raceline.csv" which includes the path to follow
         """
 
-        self.waypoints = np.loadtxt(conf.wpt_path, delimiter=conf.wpt_delim, skiprows=conf.wpt_rowskip)
+        self.waypoints = np.loadtxt(
+            conf.wpt_path, delimiter=conf.wpt_delim, skiprows=conf.wpt_rowskip
+        )
 
     def calc_theta_and_ef(self, vehicle_state, waypoints):
         """
@@ -89,20 +101,33 @@ class StanleyPlanner:
         position_front_axle = np.array([fx, fy])
 
         # Find target index for the correct waypoint by finding the index with the lowest distance value/hypothenuses
-        wpts = np.vstack((self.waypoints[:, self.conf.wpt_xind], self.waypoints[:, self.conf.wpt_yind])).T
-        nearest_point_front, nearest_dist, t, target_index = nearest_point_on_trajectory(position_front_axle, wpts)
+        wpts = np.vstack(
+            (
+                self.waypoints[:, self.conf.wpt_xind],
+                self.waypoints[:, self.conf.wpt_yind],
+            )
+        ).T
+        nearest_point_front, nearest_dist, t, target_index = (
+            nearest_point_on_trajectory(position_front_axle, wpts)
+        )
 
         # Calculate the Distances from the front axle to all the waypoints
-        distance_nearest_point_x= fx - nearest_point_front[0]
+        distance_nearest_point_x = fx - nearest_point_front[0]
         distance_nearest_point_y = fy - nearest_point_front[1]
-        vec_dist_nearest_point = np.array([distance_nearest_point_x, distance_nearest_point_y])
+        vec_dist_nearest_point = np.array(
+            [distance_nearest_point_x, distance_nearest_point_y]
+        )
 
         ###################  Calculate the current Cross-Track Error ef in [m]   ################
         # Project crosstrack error onto front axle vector
-        front_axle_vec_rot_90 = np.array([[math.cos(vehicle_state[2] - math.pi / 2.0)],
-                                          [math.sin(vehicle_state[2] - math.pi / 2.0)]])
+        front_axle_vec_rot_90 = np.array(
+            [
+                [math.cos(vehicle_state[2] - math.pi / 2.0)],
+                [math.sin(vehicle_state[2] - math.pi / 2.0)],
+            ]
+        )
 
-        #vec_target_2_front = np.array([dx[target_index], dy[target_index]])
+        # vec_target_2_front = np.array([dx[target_index], dy[target_index]])
 
         # Caculate the cross-track error ef by
         ef = np.dot(vec_dist_nearest_point.T, front_axle_vec_rot_90)
@@ -127,16 +152,20 @@ class StanleyPlanner:
         Returns the optimal steering angle delta is P-Controller with the proportional gain k
         """
 
-        k_path = 12.2                 # Proportional gain for path control
-        kd = 1.45                    # Integral gain
+        k_path = 12.2  # Proportional gain for path control
+        kd = 1.45  # Integral gain
         ki = 0.5
-        k_veloctiy = vgain           # Proportional gain for speed control, defined globally in the gym
-        theta_e, ef, target_index, goal_veloctiy = self.calc_theta_and_ef(vehicle_state, waypoints)
+        k_veloctiy = (
+            vgain  # Proportional gain for speed control, defined globally in the gym
+        )
+        theta_e, ef, target_index, goal_veloctiy = self.calc_theta_and_ef(
+            vehicle_state, waypoints
+        )
 
         # Caculate steering angle based on the cross track error to the front axle in [rad]
-        error1 = (k_path * ef[0])
-        error2 = (kd * (ef[0] - self.vehicle_control_e_f)/0.01)
-        error3 = self.vehicle_control_error3 + (ki*ef[0]*0.01)
+        error1 = k_path * ef[0]
+        error2 = kd * (ef[0] - self.vehicle_control_e_f) / 0.01
+        error3 = self.vehicle_control_error3 + (ki * ef[0] * 0.01)
         error = error1 + error2 + error3
         cte_front = math.atan2(error, vehicle_state[3])
 
@@ -144,7 +173,7 @@ class StanleyPlanner:
         delta = cte_front + theta_e
 
         # Calculate final speed control input in [m/s]:
-        #speed_diff = k_veloctiy * (goal_veloctiy-velocity)
+        # speed_diff = k_veloctiy * (goal_veloctiy-velocity)
         speed = k_veloctiy * goal_veloctiy
 
         self.vehicle_control_e_f = ef
@@ -153,23 +182,33 @@ class StanleyPlanner:
         return delta, speed
 
     def plan(self, pose_x, pose_y, pose_theta, velocity, vgain):
-        #Define a numpy array that includes the current vehicle state: x,y, theta, veloctiy
+        # Define a numpy array that includes the current vehicle state: x,y, theta, veloctiy
         vehicle_state = np.array([pose_x, pose_y, pose_theta, velocity])
 
-        #Calculate the steering angle and the speed in the controller
+        # Calculate the steering angle and the speed in the controller
         steering_angle, speed = self.controller(vehicle_state, self.waypoints, vgain)
 
-        return speed,steering_angle
+        return speed, steering_angle
 
-if __name__ == '__main__':
 
-    work = {'mass': 3.463388126201571, 'lf': 0.15597534362552312, 'tlad': 0.82461887897713965, 'vgain': 1.00}
-    with open('config_Spielberg_map.yaml') as file:
+if __name__ == "__main__":
+
+    work = {
+        "mass": 3.463388126201571,
+        "lf": 0.15597534362552312,
+        "tlad": 0.82461887897713965,
+        "vgain": 1.00,
+    }
+    with open("config_Spielberg_map.yaml") as file:
         conf_dict = yaml.load(file, Loader=yaml.FullLoader)
     conf = Namespace(**conf_dict)
 
-    env = gym.make('f110_gym:f110-v0', map=conf.map_path, map_ext=conf.map_ext, num_agents=1)
-    obs, step_reward, done, info = env.reset(np.array([[conf.sx, conf.sy, conf.stheta]]))
+    env = gym.make(
+        "f110_gym:f110-v0", map=conf.map_path, map_ext=conf.map_ext, num_agents=1
+    )
+    obs, step_reward, done, info = env.reset(
+        np.array([[conf.sx, conf.sy, conf.stheta]])
+    )
     env.render()
 
     # Creating the Motion planner object that is used in the F1TENTH Gym
@@ -182,8 +221,14 @@ if __name__ == '__main__':
     start = time.time()
 
     while not done:
-        speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0], work['vgain'])
+        speed, steer = planner.plan(
+            obs["poses_x"][0],
+            obs["poses_y"][0],
+            obs["poses_theta"][0],
+            obs["linear_vels_x"][0],
+            work["vgain"],
+        )
 
         obs, step_reward, done, info = env.step(np.array([[steer, speed]]))
         laptime += step_reward
-        env.render(mode='human_fast')
+        env.render(mode="human_fast")
