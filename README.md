@@ -2,10 +2,6 @@
 
 ### Collection of ROS packages developed for autonomous racing competition F1/10th Grand Prix.
 
-![Static obstacle avoidance](./graphics/static.gif))
-![Dynamic obstacle avoidance](./graphics/dynamic.gif))
-
-
 ## ROS Packages
 
 This codebase contains following ROS packages developed for autonomous racing competition in 2023.
@@ -14,28 +10,28 @@ This codebase contains following ROS packages developed for autonomous racing co
 
     a. Serial:
 
-        A serial library to handle communication with hardware.
-        Link for detailed documentation: https://github.com/wjwwood/serial
+    A serial library to handle communication with hardware.
+    Link for detailed documentation: https://github.com/wjwwood/serial
 
     b. URG Node:
 
-        ROS wrapper for the Hokuyo urg_c library.
-        Link to repository: https://github.com/ros-drivers/urg_node
+    ROS wrapper for the Hokuyo urg_c library.
+    Link to repository: https://github.com/ros-drivers/urg_node
 
     c. Racecar:
 
-        Brings up the car by launching all the necessary nodes.
-        Contains multiplexer for input commands which is used to decide priorities of the inputs coming from different sources.
-        Forked from: https://github.com/mit-racecar/racecar
+    Brings up the car by launching all the necessary nodes.
+    Contains multiplexer for input commands which is used to decide priorities of the inputs coming from different sources.
+    Forked from: https://github.com/mit-racecar/racecar
 
 2. Localization and Mapping:
 
     a. Particle filter:
     
-        Python implementation of particle filter modified and tuned for the F110 platform.
-        The implementation uses RangeLibc for accelerated ray casting.
-        Orinal implementation of range_libc can be found at: 
-        https://github.com/kctess5/range_libc
+    Python implementation of particle filter modified and tuned for the F110 platform.
+    The implementation uses RangeLibc for accelerated ray casting.
+    Orinal implementation of range_libc can be found at: 
+    https://github.com/kctess5/range_libc
 
     b. LaserScanMatcher and SLAM Gmapping are used but not included in the repository
 
@@ -45,25 +41,31 @@ This codebase contains following ROS packages developed for autonomous racing co
 
     a. Automatic Emergency breaking:
 
-        Calculates TTC(Time to collision) using lidar data and applies brakes when a certain threshold is met.
+    Calculates TTC(Time to collision) using lidar data and applies brakes when a certain threshold is met.
 
     b. Pure Pursuit:
 
-        Pure pursuit variants include fixed horizon and dynamic planning horizon methods. Dynamic horizon variants reduce turning and improve total lap time.
+    Pure pursuit variants include fixed horizon and dynamic planning horizon methods. Dynamic horizon variants reduce turning and improve total lap time.
 
     c. Obstacle avoidance:
 
-        During race-line optimization, two fallback trajectories are generated to fallback to if the optimal race-line is blocked by an obstacle. The IsCentreFree method continuously checks for centre trajectory status using a safety radius parameter. We provide two nodes:
+    During race-line optimization, two fallback trajectories are generated to fallback to if the optimal race-line is blocked by an obstacle. The IsCentreFree method continuously checks for centre trajectory         status using a safety radius parameter. We provide two nodes:
 
-            i. Static obstacle avoidance
+    i. Static obstacle avoidance
 
-            ii. Dynamic obstacle avoidance
+    ii. Dynamic obstacle avoidance
 
             
 
     d. Behavior state machine:
 
-        This module is integrated in obstacle avoidance module. The car needs to decide whether to overtake the car in the front or to follow it and wait for good overtaking window. We decide the overtaking based on track curvature. If the track is straight then the car will always attempt to overtake. On curved track, we decide based on estimated speed of the car in front.
+    This module is integrated in obstacle avoidance module. The car needs to decide whether to overtake the car in the front or to follow it and wait for good overtaking window. We decide the overtaking based on     track curvature. If the track is straight then the car will always attempt to overtake. On curved track, we decide based on estimated speed of the car in front.
+
+
+![Static obstacle avoidance](./graphics/static.gif)
+
+![Dynamic obstacle avoidance](./graphics/dynamic.gif)
+
 
 4. Trajectory_gen
 
