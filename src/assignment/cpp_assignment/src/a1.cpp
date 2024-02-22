@@ -1,6 +1,6 @@
 #include <iostream>
 #include "ros/ros.h"
-#include "cpp_assignment/scan_range.h"
+#include "racing_core/scan_range.h"
 #include "std_msgs/Float32.h"
 #include "sensor_msgs/LaserScan.h"
 ros::Publisher max_pub, min_pub, range_pub;
@@ -20,7 +20,7 @@ void GetLaser(const sensor_msgs::LaserScan::ConstPtr& msg)
             max = msg->ranges.at(i);
         }
     }
-    cpp_assignment::scan_range ranger;
+    racing_core::scan_range ranger;
     std_msgs::Float32 minD, maxD;
     minD.data = min;
     maxD.data = max;
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "a1");
 	ros::NodeHandle n;
-	range_pub = n.advertise<cpp_assignment::scan_range>("scan_range", 10);
+	range_pub = n.advertise<racing_core::scan_range>("scan_range", 10);
 	min_pub = n.advertise<std_msgs::Float32>("closest_point", 1);
 	max_pub = n.advertise<std_msgs::Float32>("farthest_point", 1);
 	ros::Subscriber sub = n.subscribe("scan", 1, GetLaser);

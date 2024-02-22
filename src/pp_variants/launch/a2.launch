@@ -2,6 +2,6 @@
 <launch>
     <include file="$(find racecar)/launch/teleop.launch"></include>
 
-	<node pkg="cpp_assignment" name="a2" type="a2"/>
-	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find cpp_assignment)/launch/initial.rviz" output="screen"/>
+	<node pkg="racing_core" name="a2" type="a2"/>
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find racing_core)/launch/initial.rviz" output="screen"/>
 </launch>

@@ -3,7 +3,7 @@
     <include file="$(find racecar)/launch/teleop.launch"></include>
 	<include file="$(find localization)/launch/particle_filter_live.launch"></include>
 
-	<node pkg="cpp_assignment" name="a2" type="a2"/>
-	<node pkg="cpp_assignment" name="pp_obst" type="pp_obst"/>
+	<node pkg="racing_core" name="a2" type="a2"/>
+	<node pkg="racing_core" name="pp_obst" type="pp_obst"/>
 </launch>
 
