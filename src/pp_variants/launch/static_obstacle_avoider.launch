@@ -6,4 +6,3 @@
 	<node pkg="racing_core" name="a2" type="a2"/>
 	<node pkg="racing_core" name="pp_obst" type="pp_obst"/>
 </launch>
-

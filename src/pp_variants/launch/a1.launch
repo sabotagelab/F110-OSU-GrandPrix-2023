@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-	<node pkg="racing_core" name="a1" type="a1"/>
-	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find racing_core)/launch/initial.rviz" output="screen"/>
-</launch>

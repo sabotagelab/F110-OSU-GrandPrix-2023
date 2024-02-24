@@ -5,4 +5,3 @@
 
 	<node pkg="racing_core" name="a2" type="a2"/>
 </launch>
-

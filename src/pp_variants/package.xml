@@ -8,12 +8,7 @@
   <maintainer email="patilunmeshrao@gmail.com">unmesh</maintainer>
 
 
-
   <license>MIT</license>
-
-
-
-
 
 
   <buildtool_depend>catkin</buildtool_depend>
