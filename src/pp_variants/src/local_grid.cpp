@@ -29,7 +29,7 @@ void scan_callback(const sensor_msgs::LaserScan::ConstPtr &scan_msg) {
         {
             float r = sqrt(pow((x - i),2) + pow((y - j),2));
             float theta = ((atan2((y-j),(x-i)))*57.2958) -90;
-            int index = int(fabs(theta*3));
+            int index = static_cast<int>(fabs(theta*3));
             m[j +  rmax*i] = 60;
             if (index < 1080){
                 float meas_r = (scan_msg->ranges[index])*100;

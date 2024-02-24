@@ -13,7 +13,7 @@ private:
     ros::Publisher brake_pub, bool_pub;
     ros::Subscriber scan_sub, odom_sub;
     ackermann_msgs::AckermannDriveStamped driver;
-    std_msgs::Bool booler;
+    std_msgs::Bool collision_bool;
     float cosines[1080];
     int index = 0;
 
@@ -38,7 +38,7 @@ public:
 
     void scan_callback(const sensor_msgs::LaserScan::ConstPtr &msg) {
         int size = msg->ranges.size();
-        booler.data = false;
+        collision_bool.data = false;
         if (fabs(speed) > 0.1)
         {
             float TTC = 5.0;
@@ -49,14 +49,14 @@ public:
               {
                 driver.header = msg->header;
                 brake_pub.publish(driver);
-                booler.data = true;
-                bool_pub.publish(booler);
+                collision_bool.data = true;
+                bool_pub.publish(collision_bool);
                 break;
               }
                      
             }
         }
-        if (booler.data == false) {bool_pub.publish(booler);}
+        if (collision_bool.data == false) {bool_pub.publish(collision_bool);}
  }   
 };
 int main(int argc, char ** argv) {

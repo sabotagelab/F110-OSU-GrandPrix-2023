@@ -8,7 +8,7 @@ from std_msgs.msg import Bool
 from ackermann_msgs.msg import AckermannDriveStamped
 
 driver = AckermannDriveStamped()
-booler = Bool()
+collision_bool = Bool()
 driver.drive.speed = 0.0
 
 
@@ -39,8 +39,8 @@ def scan_callback(data):
                 "\n\n\n ##############################  applying break ########################\n\n\n"
             )
         else:
-            booler.data = False
-            bool_pub.publish(booler)
+            collision_bool.data = False
+            bool_pub.publish(collision_bool)
 
 
 def odomCallback(data):
@@ -51,9 +51,9 @@ def odomCallback(data):
 
 def applyBreak(head):
     driver.header = head
-    booler.data = True
+    collision_bool.data = True
     brake_pub.publish(driver)
-    bool_pub.publish(booler)
+    bool_pub.publish(collision_bool)
 
 
 speed = 0.0

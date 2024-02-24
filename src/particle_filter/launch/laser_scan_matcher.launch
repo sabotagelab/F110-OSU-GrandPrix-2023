@@ -10,7 +10,7 @@
   <param name="/stamped_vel" value="$(arg IS_TWISTSTAMPED)"/>
 
   <node pkg="rosbag" type="play" name="play_rosbag" args="$(find localization)/bags/moore-6-29-18.bag --delay=5 --clock "/>
-	
+
 <group if="$(arg use_rviz)">
     <node pkg="rviz" type="rviz" name="rviz"
           args="-d $(find laser_scan_matcher)/demo/demo.rviz"/>
@@ -66,7 +66,7 @@
     <param name="laser_scan_matcher_node/publish_pose_with_covariance" value="true"/>
     <param name="laser_scan_matcher_node/publish_pose_with_covariance_stamped" value="true"/>
   </group>
- 
+
     <param name="max_iterations" value="10"/>
- 
+
 </launch>

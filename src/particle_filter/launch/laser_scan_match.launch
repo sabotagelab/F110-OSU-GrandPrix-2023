@@ -11,7 +11,7 @@
     <!-- Topics -->
     <remap from="scan" to="scan"/>
     <remap from="odom" to="/vesc/odom"/>
-    
+
     <!-- Coordinate frames -->
     <param name="fixed_frame" value="map" />
     <param name="base_frame" value="car1_30m/base_link" />
@@ -51,7 +51,7 @@
     <param name="laser_scan_matcher_node/publish_pose_with_covariance" value="true"/>
     <param name="laser_scan_matcher_node/publish_pose_with_covariance_stamped" value="true"/>
   </group>
- 
+
     <param name="max_iterations" value="10"/>
- 
+
 </launch>
